@@ -1,0 +1,5 @@
+{
+  "MONGODB_URI": "mongodb://127.0.0.1:27017/",
+  "SECRET_KEY": "gJ!8vN3$zQ@1xC^s#LpW0*RkT&eYd5uM",
+  "TOKEN_NAME": "E_Commerce_Token"
+}

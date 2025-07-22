@@ -9,35 +9,27 @@ const createProduct = async (req, res) => {
       description,
       imageUrls,
       price,
+      mrp,
       discount,
       variants,
       stock,
       category,
     } = req.body;
-    if (
-      !title ||
-      !description ||
-      !price ||
-      !discount ||
-      !variants ||
-      !stock ||
-      !category
-    ) {
+    if (!title || !description || !mrp || !discount || !stock || !category) {
       return res.status(400).send({
         status: false,
         msg: "All fields are required!",
       });
     }
-
     const vendor = await User.findById(req.user.id);
-    console.log("vendor", vendor);
     const slug = generateSlug(title);
     const newProduct = await Product.create({
       title,
       description,
-      price,
-      imageUrls,
       discount,
+      mrp,
+      imageUrls,
+      price: mrp - (mrp * discount) / 100 || price,
       variants,
       stock,
       category,
@@ -58,6 +50,46 @@ const createProduct = async (req, res) => {
     });
   }
 };
+const listProduct = async (req, res) => {
+  try {
+    const vendorId = req.user.id;
+    const products = await Product.find({ vendor: vendorId });
+    const totalProductCount = await Product.countDocuments({
+      vendor: vendorId,
+    });
+    return res.status(200).send({
+      status: true,
+      msg: "all vendor products!",
+      data: { products, totalProduct: totalProductCount },
+    });
+  } catch (error) {
+    console.error("List Product Error:", error.message);
+    return res.status(500).send({
+      status: false,
+      msg: "Server error",
+      error: error.message,
+    });
+  }
+};
+const productDetails = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
+    if (product.vendor.toStrings() !== req.user.id) {
+      return res.status(403).send({
+        status: false,
+        msg: "You are not allowed to update this product",
+      });
+    }
+  } catch (error) {
+    console.error(" Product details Error:", error.message);
+    return res.status(500).send({
+      status: false,
+      msg: "Server error",
+      error: error.message,
+    });
+  }
+};
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.productId;
@@ -66,6 +98,7 @@ const updateProduct = async (req, res) => {
       description,
       imageUrls,
       price,
+      mrp,
       discount,
       variants,
       stock,
@@ -84,12 +117,6 @@ const updateProduct = async (req, res) => {
     if (!product) {
       return res.status(404).send({ status: false, msg: "Product Not Found!" });
     }
-    console.log("product", product);
-    console.log(
-      "product.vendor !== req.user.id",
-      product.vendor.toString(),
-      req.user.id
-    );
 
     // check if product is belong by this vendor
     if (product.vendor.toString() !== req.user.id) {
@@ -105,6 +132,7 @@ const updateProduct = async (req, res) => {
         description,
         imageUrls,
         price,
+        mrp,
         discount,
         variants,
         stock,
@@ -127,29 +155,6 @@ const updateProduct = async (req, res) => {
     });
   }
 };
-
-const listProduct = async (req, res) => {
-  try {
-    const vendorId = req.user.id;
-    const products = await Product.find({ vendor: vendorId });
-    const totalProductCount = await Product.countDocuments({
-      vendor: vendorId,
-    });
-    return res.status(200).send({
-      status: true,
-      msg: "all vendor products!",
-      data: { products, totalProduct: totalProductCount },
-    });
-  } catch (error) {
-    console.error("List Product Error:", error.message);
-    return res.status(500).send({
-      status: false,
-      msg: "Server error",
-      error: error.message,
-    });
-  }
-};
-
 const deleteProduct = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -182,9 +187,11 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
   listProduct,
+  productDetails,
 };

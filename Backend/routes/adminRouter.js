@@ -1,5 +1,4 @@
 const express = require("express");
-const User = require("../models/user-model");
 const { adminLogin } = require("../controllers/admin/logincontroller");
 const {
   productListA,
@@ -11,11 +10,16 @@ const {
   isAuthenticated,
   authorizeRoles,
 } = require("../middlewares/isAuthentication");
+const {
+  getCategory,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} = require("../controllers/admin/categorys");
 const router = express.Router();
 
 router.post("/login", adminLogin);
-
-// product routes ---------------->
+//<=================================== Products Routes ====================>
 router.get(
   "/get-products",
   isAuthenticated,
@@ -39,6 +43,33 @@ router.delete(
   isAuthenticated,
   authorizeRoles("admin"),
   productDeleteA
+);
+
+//<=================================== Category Routes ====================>
+
+router.get(
+  "/get-category",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getCategory
+);
+router.post(
+  "/create-category",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  createCategory
+);
+router.patch(
+  "/update-category/:categoryId",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  updateCategory
+);
+router.delete(
+  "/delete-category/:categoryId",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  deleteCategory
 );
 
 module.exports = {

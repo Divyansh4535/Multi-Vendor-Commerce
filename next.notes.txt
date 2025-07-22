@@ -1,0 +1,11 @@
+[1] Why  we should use Next.js ?
+first of all more features then react because next is a framework or react.
+we write frontend and backend both of cod also in next js .
+use server side rendering in next js so better seo   
+
+[2] Next js is front-end framework?
+No,next js is full stack framework.here we can write code front-end as well back-end also.
+
+[3]can we connect Database ?
+yes, any data base that we can connect  with node js . 
+

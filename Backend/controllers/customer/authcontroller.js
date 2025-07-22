@@ -6,7 +6,7 @@ const { generateToken } = require("../../utils/token");
 const registerUser = async (req, res) => {
   try {
     const { fullname, username, email, password } = req.body;
-    if (fullname || username || !email || !password) {
+    if (!fullname || !username || !email || !password) {
       res.status(400).send({ status: false, msg: "All felids are required !" });
     }
     const user = await User.findOne({ email });
@@ -18,11 +18,10 @@ const registerUser = async (req, res) => {
     }
     const hashPassword = await encryptedData(password);
     const newUser = await User.create({
-      // fullname,
-      // username,
+      fullname,
+      username,
       email,
       password: hashPassword,
-      role: "admin",
     });
     res.status(201).send({
       status: true,
@@ -30,11 +29,15 @@ const registerUser = async (req, res) => {
       data: newUser,
     });
   } catch (error) {
-    console.error(error);
+    console.error("register User  Error:", error.message);
+    return res.status(500).send({
+      status: false,
+      msg: "Server error",
+      error: error.message,
+    });
   }
 };
 const loginUser = async (req, res) => {
-  console.log("req.body", req.body);
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -55,15 +58,14 @@ const loginUser = async (req, res) => {
       { email, username: user.username, id: user._id },
       privateKey
     );
-    res.cookie(TOKEN_NAME, token);
-    // res.status(200).send({ status: true, msg: "user verified !", token });
+
     res.status(200).send({
       status: true,
-      msg: "user login successfully!",
+      msg: "User login successfully!",
       data: { user, token },
     });
   } catch (error) {
-    console.error("Login Costumer Product Error:", error.message);
+    console.error("Login User Error:", error.message);
     return res.status(500).send({
       status: false,
       msg: "Server error",

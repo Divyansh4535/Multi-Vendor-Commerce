@@ -2,7 +2,9 @@ const Product = require("../../models/product-model");
 
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isActive: true }).populate("vendor");
+    // const products = await Product.find({ isActive: true }).populate("vendor");
+    const products = await Product.find().populate("vendor"); // checking only
+    // console.log("products------------>", products);
     const totalProducts = await Product.countDocuments({ isActive: true });
     return res.status(200).send({
       status: true,

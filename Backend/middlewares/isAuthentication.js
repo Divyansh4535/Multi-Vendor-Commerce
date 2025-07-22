@@ -12,7 +12,7 @@ const isAuthenticated = async (req, res, next) => {
         .send({ status: false, msg: "token missing and malformed!" });
     }
     const token = authHeader.split(" ")[1];
-    console.log("token", token);
+
     const verifyData = verifyToken(token, publicKey);
     const user = await User.findById(verifyData.id).select("-password");
     if (!user) {
@@ -31,7 +31,6 @@ const isAuthenticated = async (req, res, next) => {
 // Middleware: Check if user has the required role(s)
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
-    console.log("req.user", req.user);
     if (!req.user || !allowedRoles.includes(req.user.role)) {
       return res.status(403).send({
         status: false,

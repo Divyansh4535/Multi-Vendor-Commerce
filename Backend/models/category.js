@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+const { default: mongoose, model } = require("mongoose");
 
 const categorySchema = mongoose.Schema(
   {
@@ -24,10 +24,6 @@ const categorySchema = mongoose.Schema(
     showOnHome: {
       type: Boolean,
       default: false,
-    },
-    level: {
-      type: Number,
-      default: 0, // 0 = main, 1 = subcategory, etc.
     },
   },
   { timestamps: true }

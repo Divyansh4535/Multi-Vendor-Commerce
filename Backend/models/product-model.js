@@ -25,6 +25,10 @@ const productSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    mrp: {
+      type: Number,
+      required: true,
+    },
     discount: {
       type: Number,
       default: 0,
@@ -72,9 +76,9 @@ const productSchema = mongoose.Schema(
       ref: "user",
       required: true,
     },
-    isActive:{
-      type:Boolean,
-      default:false
+    isActive: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: String,

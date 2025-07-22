@@ -8,3 +8,10 @@
 // | ❓ **404  Not Found**    | The requested resource **doesn't exist** (e.g., invalid URL or ID).
 // | 🔄 **409 Conflict**     | Conflict in request (e.g., email already registered, duplicate entry).
 // | 💥 **500 Internal Server Error** | Something went wrong on the **server side** (e.g., DB crash, exception).
+
+console.error("Delete Product Error:", error.message);
+return res.status(500).send({
+  status: false,
+  msg: "Server error",
+  error: error.message,
+});

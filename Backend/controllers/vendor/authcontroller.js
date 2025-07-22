@@ -50,7 +50,7 @@ const loginVendor = async (req, res) => {
       });
     }
     const checkMail = email.includes("@") ? { email } : { phone: email };
-    console.log("checkMail", checkMail);
+
     const user = await User.findOne(checkMail);
     if (!user) {
       return res.status(404).send({
@@ -66,8 +66,6 @@ const loginVendor = async (req, res) => {
       });
     }
     const token = generateToken({ id: user._id, email }, privateKey);
-    console.log("token", token);
-
     return res.status(200).send({
       status: true,
       msg: "Vendor login successfully!",

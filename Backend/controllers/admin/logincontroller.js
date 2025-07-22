@@ -56,10 +56,11 @@ const adminLogin = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error("Admin login error:", error);
+    console.error("admin login Error:", error.message);
     return res.status(500).send({
       status: false,
-      msg: "Internal server error",
+      msg: "Server error",
+      error: error.message,
     });
   }
 };

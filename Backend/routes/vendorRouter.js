@@ -8,6 +8,7 @@ const {
   updateProduct,
   listProduct,
   deleteProduct,
+  productDetails,
 } = require("../controllers/vendor/product");
 const {
   isAuthenticated,
@@ -17,8 +18,8 @@ const router = express.Router();
 
 router.post("/register", registerVendor);
 router.post("/login", loginVendor);
-// Products routes ----->
 
+// <========================= Products routes ===============================>
 router.post(
   "/create-product",
   isAuthenticated,
@@ -30,6 +31,12 @@ router.get(
   isAuthenticated,
   authorizeRoles("vendor"),
   listProduct
+);
+router.get(
+  "/product-details/:productId",
+  isAuthenticated,
+  authorizeRoles("vendor"),
+  productDetails
 );
 router.delete(
   "/delete-product:productId",

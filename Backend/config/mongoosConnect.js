@@ -1,16 +1,14 @@
 const config = require("config");
 const { default: mongoose } = require("mongoose");
 
-// const dbgr = require("debug")("development:mongoose");
-
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(
-      `${config.get("MONGODB_URI")}Multi_Vendor_ECommerce`
+      `${process.env.MONGODB_URL}Multi_Vendor_ECommerce`
     );
-    console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+    console.log(`✅ MongoDB connected: \n ${conn.connection.host}`);
   } catch (error) {
-    console.log(`❌ MongoDB connection error: ${error.message}`);
+    console.log(`❌ MongoDB connection error: \n  ${error.message}`);
     process.exit(1); // Exit process if connection fails
   }
 };

@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       "ext.same-assets.com",
       "ugc.same-assets.com",
       "images.pexels.com",
-      
+      "example.com",
     ],
     remotePatterns: [
       {
@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "ext.same-assets.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "example.com",
         pathname: "/**",
       },
     ],

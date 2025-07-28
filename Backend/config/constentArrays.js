@@ -332,11 +332,18 @@ const PAYMENT_METHOD = [
   "OTHERS",
 ];
 
+const ORDER_TYPE = ["SINGLE", "CART"];
+
+const ROLE = ["customer", "admin", "vendor"];
+const GENDER = ["male", "female", "other"];
 module.exports = {
+  ROLE,
+  GENDER,
   ORDER_STATUS,
   ORDER_STATUS_LIST,
   PAYMENT_STATUS,
   PAYMENT_STATUS_LIST,
   PAYMENT_METHOD,
   PAYMENT_METHOD_LIST,
+  ORDER_TYPE,
 };

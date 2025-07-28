@@ -12,12 +12,8 @@ const { isAuthenticated } = require("../middlewares/isAuthentication");
 const {
   addToCart,
   getAllCarts,
-  removeCart,
 } = require("../controllers/customer/cart.controllers");
 const {
-  getAllOrders,
-  createOrders,
-  cancelOrders,
   cancelOrder,
   listOfOrders,
   placeOrder,
@@ -34,7 +30,7 @@ router.get("/product-details/:productId", productDetails);
 // Cart Routes ------------------------------------------->
 router.get("/get-all-carts", isAuthenticated, getAllCarts);
 router.post("/add-to-cart", isAuthenticated, addToCart);
-router.delete("/remove-cart", isAuthenticated, removeCart);
+// router.delete("/remove-cart", isAuthenticated, removeCart);
 
 // Order Routes ------------------------------------------->
 router.get("/get-all-orders", isAuthenticated, listOfOrders);

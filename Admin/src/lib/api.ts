@@ -4,17 +4,17 @@ import { apis } from "./constant";
 
 const apiInstance = axios.create({
   baseURL: apis.admin,
-  timeout: 1000,
+  timeout: 10000,
 });
 const publicInstance = axios.create({
   baseURL: apis.admin,
-  timeout: 1000,
+  timeout: 10000,
 });
 
 apiInstance.interceptors.request.use((config) => {
   const token = getToken();
   if (token) {
-    config.headers.Authorization = token;
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

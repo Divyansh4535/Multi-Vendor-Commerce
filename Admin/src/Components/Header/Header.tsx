@@ -2,14 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 // import { ModeToggle } from "./mode-toggle";
-import { Bell, Menu, Search, ChevronDown, User, Settings, LogOut, X } from "lucide-react";
+import {
+  Bell,
+  Menu,
+  Search,
+  ChevronDown,
+  User,
+  Settings,
+  LogOut,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { toggleSidebar } from "@/redux/reducer/SidebarReducer";
 import { motion, AnimatePresence } from "framer-motion";
 import { ModeToggle } from "./mode-toggle";
-
+import { removeToken } from "@/lib/token";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   title?: string;
@@ -23,7 +33,7 @@ const notifications = [
     description: "You have 3 unread messages",
     time: "2 mins ago",
     icon: <Bell className="h-4 w-4" />,
-    color: "text-blue-500"
+    color: "text-blue-500",
   },
   // {
   //   id: 2,
@@ -46,6 +56,7 @@ const notifications = [
 export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
   const user: any = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -60,22 +71,24 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-
-
+  const handleSignOut = () => {
+    removeToken(), router.push("/auth");
+  };
   return (
     <header
-      className={`sticky rounded-2xl mt-4 mx-4  top-0 z-50 flex h-16 items-center justify-between transition-all duration-300 ${isScrolled
-        ? "border-b border-stroke/50 bg-white/90 backdrop-blur-sm dark:border-stroke-dark/50 dark:bg-gray-dark/90"
-        : "border-b border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark"
-        } px-4 sm:px-6 lg:px-8`}
+      className={`sticky rounded-2xl mt-4 mx-4 top-0 z-50 flex h-16 items-center justify-between transition-all duration-300 ${
+        isScrolled
+          ? "border-b border-stroke/50 bg-white/95 backdrop-blur-sm dark:border-stroke-dark/50 dark:bg-gray-900/95 shadow-sm"
+          : "border-b border-stroke/30 bg-white dark:border-stroke-dark/30 dark:bg-gray-900"
+      } px-4 sm:px-6 lg:px-8`}
     >
       {/* Left Section */}
       <div className="flex items-center gap-4">
         {/* Sidebar Toggle */}
         <motion.button
           whileTap={{ scale: 0.95 }}
-          className="flex size-10 items-center justify-center rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-dark-4"
+          whileHover={{ scale: 1.05 }}
+          className="flex size-10 items-center justify-center rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-800"
           onClick={() => dispatch(toggleSidebar())}
           aria-label="Toggle sidebar"
         >
@@ -113,13 +126,13 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
         >
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-4 w-4 text-gray-400" />
+              <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full rounded-xl border-0 bg-gray-100 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 transition-all focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-dark-3 dark:text-white dark:placeholder-gray-400"
+              className="block w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 transition-all focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500/30"
               placeholder="Search anything..."
             />
             {searchQuery && (
@@ -127,7 +140,7 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
                 onClick={() => setSearchQuery("")}
                 className="absolute inset-y-0 right-0 flex items-center pr-3"
               >
-                <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                <X className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
               </button>
             )}
           </div>
@@ -139,6 +152,7 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
         {/* Mobile Search Toggle */}
         <motion.button
           whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.05 }}
           className="flex size-10 items-center justify-center rounded-full sm:hidden"
           onClick={() => setShowMobileSearch(!showMobileSearch)}
           aria-label="Search"
@@ -157,17 +171,17 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute left-0 top-16 z-50 w-full bg-white px-4 py-3 shadow-sm dark:bg-gray-dark sm:hidden"
+              className="absolute left-0 top-16 z-50 w-full bg-white px-4 py-3 shadow-sm dark:bg-gray-900 sm:hidden"
             >
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Search className="h-4 w-4 text-gray-400" />
+                  <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full rounded-xl border-0 bg-gray-100 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-primary-500 dark:bg-dark-3 dark:text-white dark:placeholder-gray-400"
+                  className="block w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500"
                   placeholder="Search..."
                   autoFocus
                 />
@@ -176,7 +190,7 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
                     onClick={() => setSearchQuery("")}
                     className="absolute inset-y-0 right-0 flex items-center pr-3"
                   >
-                    <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                    <X className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
                   </button>
                 )}
               </div>
@@ -185,15 +199,16 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
         </AnimatePresence>
 
         {/* Dark Mode Toggle */}
-        <div className="hidden sm:block">
+        {/* <div className="hidden sm:block">
           <ModeToggle />
-        </div>
+        </div> */}
 
         {/* Notifications */}
         <div className="relative">
           <motion.button
             whileTap={{ scale: 0.95 }}
-            className="relative flex size-10 items-center justify-center rounded-full transition-all hover:bg-gray-100 dark:hover:bg-dark-4"
+            whileHover={{ scale: 1.05 }}
+            className="relative flex size-10 items-center justify-center rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={() => {
               setShowNotifications(!showNotifications);
               setShowProfileMenu(false);
@@ -213,10 +228,10 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                className="absolute right-0 mt-2 w-80 origin-top-right rounded-xl border border-gray-200 bg-white shadow-lg dark:border-dark-4 dark:bg-dark-2"
+                className="absolute right-0 mt-2 w-80 origin-top-right rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
               >
                 <div className="p-3">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-dark-4">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2 dark:border-gray-700">
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       Notifications
                     </h3>
@@ -232,9 +247,11 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
                       <motion.div
                         key={notification.id}
                         whileHover={{ scale: 1.02 }}
-                        className="flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-colors hover:bg-gray-50 dark:hover:bg-dark-3"
+                        className="flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
                       >
-                        <div className={`flex size-8 items-center justify-center rounded-full ${notification.color} bg-opacity-20`}>
+                        <div
+                          className={`flex size-8 items-center justify-center rounded-full ${notification.color} bg-opacity-20`}
+                        >
                           {notification.icon}
                         </div>
                         <div className="flex-1">
@@ -245,7 +262,7 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
                             {notification.description}
                           </p>
                         </div>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
                           {notification.time}
                         </span>
                       </motion.div>
@@ -261,7 +278,8 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
         <div className="relative">
           <motion.button
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 rounded-full p-1 transition-all hover:bg-gray-100 dark:hover:bg-dark-4"
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-2 rounded-full p-1 transition-all hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={() => {
               setShowProfileMenu(!showProfileMenu);
               setShowNotifications(false);
@@ -270,7 +288,10 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
           >
             <div className="size-8 overflow-hidden rounded-full border-2 border-primary-500/20">
               <Image
-                src={user?.avatar || "https://ext.same-assets.com/1978936293/849522504.png"}
+                src={
+                  user?.avatar ||
+                  "https://ext.same-assets.com/1978936293/849522504.png"
+                }
                 alt="User profile"
                 width={32}
                 height={32}
@@ -281,8 +302,9 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
             <span className="hidden items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 md:flex">
               {user?.name || "Admin"}
               <ChevronDown
-                className={`h-4 w-4 transition-transform ${showProfileMenu ? "rotate-180" : ""
-                  }`}
+                className={`h-4 w-4 transition-transform ${
+                  showProfileMenu ? "rotate-180" : ""
+                }`}
               />
             </span>
           </motion.button>
@@ -294,13 +316,16 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-gray-200 bg-white shadow-lg dark:border-dark-4 dark:bg-dark-2"
+                className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
               >
                 <div className="p-2">
                   <div className="flex items-center gap-3 rounded-lg px-3 py-2">
                     <div className="size-9 overflow-hidden rounded-full border-2 border-primary-500/20">
                       <Image
-                        src={user?.avatar || "https://ext.same-assets.com/1978936293/849522504.png"}
+                        src={
+                          user?.avatar ||
+                          "https://ext.same-assets.com/1978936293/849522504.png"
+                        }
                         alt="User profile"
                         width={36}
                         height={36}
@@ -316,25 +341,26 @@ export function Header({ title = "Dashboard", description = "" }: HeaderProps) {
                       </p>
                     </div>
                   </div>
-                  <div className="my-2 border-t border-gray-100 dark:border-dark-4"></div>
+                  <div className="my-2 border-t border-gray-100 dark:border-gray-700"></div>
                   <motion.button
                     whileHover={{ x: 5 }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-dark-3"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50"
                   >
                     <User className="h-4 w-4" />
                     <span>Profile</span>
                   </motion.button>
                   <motion.button
                     whileHover={{ x: 5 }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-dark-3"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50"
                   >
                     <Settings className="h-4 w-4" />
                     <span>Settings</span>
                   </motion.button>
-                  <div className="my-2 border-t border-gray-100 dark:border-dark-4"></div>
+                  <div className="my-2 border-t border-gray-100 dark:border-gray-700"></div>
                   <motion.button
                     whileHover={{ x: 5 }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-gray-50 dark:text-red-400 dark:hover:bg-dark-3"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-gray-50 dark:text-red-400 dark:hover:bg-gray-700/50"
+                    onClick={handleSignOut}
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Sign out</span>

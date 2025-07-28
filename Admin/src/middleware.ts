@@ -10,24 +10,25 @@ export function middleware(request: NextRequest) {
 
   if (token) {
     try {
-      const user = decryptData(token);
-      if (user) isAuthentication = true
+      // const user = decryptData(token);
+      const user = token;
+      if (user) isAuthentication = true;
     } catch (error) {
-      isAuthentication = false
+      isAuthentication = false;
     }
   }
 
   if (path.startsWith("/dashboard") && !isAuthentication) {
     return NextResponse.redirect(new URL("/auth", request.url));
   }
-  if (path.startsWith("/auth") && isAuthentication ) {
+  if (path.startsWith("/auth") && isAuthentication) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-  return NextResponse.next()
+  return NextResponse.next();
 }
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
 };
 

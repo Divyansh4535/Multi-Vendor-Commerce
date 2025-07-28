@@ -1,21 +1,17 @@
 "use client";
 
-import  React, { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function ModeToggle() {
-  const { setTheme, theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const { setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === "light" ? "dark" : "light");
-  };
 
   if (!mounted) {
     return (
@@ -23,13 +19,21 @@ export function ModeToggle() {
     );
   }
 
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === "light" ? "dark" : "light");
+  };
+
   return (
     <motion.button
       onClick={toggleTheme}
       whileTap={{ scale: 0.95 }}
       whileHover={{ scale: 1.05 }}
       className="relative h-8 w-8 rounded-full bg-gray-100 p-1.5 outline-none ring-1 ring-gray-200 transition-colors hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:bg-gray-800 dark:ring-gray-700 dark:hover:bg-gray-700"
-      aria-label={resolvedTheme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+      aria-label={
+        resolvedTheme === "light"
+          ? "Switch to dark mode"
+          : "Switch to light mode"
+      }
     >
       <AnimatePresence mode="wait" initial={false}>
         {resolvedTheme === "dark" ? (
@@ -55,7 +59,6 @@ export function ModeToggle() {
         )}
       </AnimatePresence>
 
-      {/* Animated background gradient */}
       <motion.div
         className="absolute inset-0 -z-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 opacity-0 dark:opacity-15"
         animate={{

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ROLE, GENDER } = require("../config/constentArrays");
 
 const userSchema = mongoose.Schema(
   {
@@ -24,12 +25,13 @@ const userSchema = mongoose.Schema(
     },
     phone: {
       type: String,
-      minlength: 10,
-      maxlength: 12,
+      min: 10,
+      max: 12,
     },
     gender: {
       type: String,
-      enum: ["male", "female", "other"],
+      enum: GENDER,
+      default: GENDER[0],
     },
     profileImage: {
       type: String,
@@ -38,21 +40,23 @@ const userSchema = mongoose.Schema(
     cartsItem: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "cart",
+        ref: "Cart",
       },
     ],
     ordersItem: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "orders",
+        ref: "Order",
       },
     ],
     role: {
       type: String,
-      enum: ["admin", "customer", "vendor"],
-      default: "customer",
+      enum: ROLE,
+      default: ROLE[0],
     },
-
+    address: {
+      type: String,
+    },
     // =========== vendor extra fields ==========
     shopName: {
       type: String,
@@ -76,11 +80,11 @@ const userSchema = mongoose.Schema(
     },
     adharNumber: {
       type: String,
-      maxlength: 12,
+      max: 12,
     },
     panNumber: {
       type: String,
-      maxlength: 10,
+      max: 10,
     },
     isApproved: {
       type: Boolean,
@@ -90,5 +94,5 @@ const userSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("user", userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;

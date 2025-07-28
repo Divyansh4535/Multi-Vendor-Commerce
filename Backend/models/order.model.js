@@ -3,23 +3,20 @@ const {
   ORDER_STATUS,
   PAYMENT_STATUS,
   PAYMENT_METHOD,
+  ORDER_TYPE,
 } = require("../config/constentArrays");
 
 const orderSchema = mongoose.Schema(
   {
-    cartId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "cart",
-    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
     },
     products: [
       {
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "product",
+          ref: "Product",
         },
         quantity: {
           type: Number,
@@ -30,6 +27,11 @@ const orderSchema = mongoose.Schema(
     totalAmount: {
       type: Number,
       required: true,
+    },
+    orderType: {
+      type: String,
+      enum: ORDER_TYPE,
+      default: ORDER_TYPE[0],
     },
     paymentStatus: {
       type: String,
@@ -50,10 +52,13 @@ const orderSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    deliveryAddress: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
-const Order = mongoose.model("order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 
 module.exports = Order;

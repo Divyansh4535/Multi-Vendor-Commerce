@@ -5,7 +5,9 @@ const getAllProducts = async (req, res) => {
     // const products = await Product.find({ isActive: true }).populate("vendor");
     const products = await Product.find().populate("vendor"); // checking only
     // console.log("products------------>", products);
-    const totalProducts = await Product.countDocuments({ isActive: true });
+    // const totalProducts = await Product.countDocuments({ isActive: true });
+    const totalProducts = await Product.countDocuments();
+
     return res.status(200).send({
       status: true,
       msg: "All available products",

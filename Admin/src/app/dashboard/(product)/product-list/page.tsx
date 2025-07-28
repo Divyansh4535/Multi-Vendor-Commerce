@@ -1,50 +1,198 @@
 "use client";
-import { getCall, postCall, deleteCall } from "@/lib/api";
+import { getCall, postCall, deleteCall, patchCall } from "@/lib/api";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { FiEye, FiTrash2, FiEdit, FiPlus } from "react-icons/fi";
 import Link from "next/link";
+import { toast } from "sonner";
+import CustomTable from "@/Components/Table/CustomTable";
+import CustomSwitch from "@/Components/Input/Switch/CustomSwitch";
+import { EyeIcon, TrashIcon, View } from "lucide-react";
 
-const AdminProductsPage = () => {
-  const [products, setProducts] = useState([]);
+interface Product {
+  _id: string;
+  title: string;
+  slug: string;
+  price: number;
+  category: string;
+  view: number;
+  stock: number;
+  vendor: {
+    fullname: string;
+    username: string;
+    email: string;
+  };
+  isActive: boolean;
+  isFeatured: boolean;
+}
+
+const ProductList = () => {
+  const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [isActiveProduct, setIsActiveProduct] = useState(false);
+  const columns = [
+    {
+      key: "title",
+      header: "Product Name",
+      render: (item: Product) => (
+        <span className="font-medium">{item.title}</span>
+      ),
+    },
+    {
+      key: "slug",
+      header: "Slug",
+      render: (item: Product) => (
+        <span className="font-medium">{item.slug}</span>
+      ),
+    },
+    {
+      key: "price",
+      header: "Price",
+      render: (item: Product) => `$${item.price.toFixed(2)}`,
+      align: "right" as const,
+    },
+    {
+      key: "category",
+      header: "Category",
+      render: (item: Product) => `${item.category}`, // Removed $ prefix
+    },
+    {
+      key: "view",
+      header: "View Count",
+      render: (item: Product) => `${item.view}`, // Removed $ prefix
+    },
+    {
+      key: "stock",
+      header: "Inventory",
+      render: (item: Product) => `${item.stock}`, // Removed $ prefix
+    },
+    {
+      key: "vendorName",
+      header: "Vendor Name",
+      render: (item: Product) => item.vendor?.fullname || "N/A", // Added null check
+    },
+    {
+      key: "vendorUsername",
+      header: "Vendor Username",
+      render: (item: Product) => item.vendor?.username || "N/A", // Added null check
+    },
+    {
+      key: "vendorEmail",
+      header: "Vendor Email",
+      render: (item: Product) => item.vendor?.email || "N/A", // Added null check
+    },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (item: Product) => (
+        <span>
+          <CustomSwitch
+            defaultChecked={item.isActive}
+            onChange={(val) => handleIsActiveProduct(item._id, val)}
+          />
+        </span>
+      ),
+      align: "right" as const,
+    },
+    {
+      key: "isFeatured",
+      header: "Featured",
+      render: (item: Product) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs ${
+            item.isFeatured
+              ? "bg-purple-100 text-purple-800"
+              : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {item.isFeatured ? "Yes" : "No"}
+        </span>
+      ),
+      align: "right" as const,
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (item: Product) => (
+        <div className="flex space-x-2">
+          <Link href={`/dashboard/product-details/${item._id}`} passHref>
+            <button
+              className="p-2 text-blue-400 hover:text-blue-300 cursor-pointer transition-colors"
+              aria-label="Edit product"
+            >
+              <EyeIcon className="w-5 h-5" /> {/* Using an eye icon for view */}
+            </button>
+          </Link>
+          <button
+            onClick={() => handleDelete(item._id)}
+            disabled={deleteLoading}
+            className="p-2 text-rose-400 hover:text-rose-300 cursor-pointer transition-colors disabled:opacity-50"
+            aria-label="Delete product"
+          >
+            <TrashIcon className="w-5 h-5" /> {/* Using a trash icon */}
+          </button>
+        </div>
+      ),
+    },
+  ];
+  const rowClass = (product: Product) =>
+    product.stock === 0 ? "bg-gray-100" : "";
+
   const getProducts = async () => {
-    const payload = {
-      search: "",
-      page: 1,
-      limit: 10,
-      all: false,
-    };
     try {
       setLoading(true);
-      const response = await postCall("/products", payload);
-      if (response?.status === 200) {
-        setTotal(response?.data?.total);
-        setProducts(response?.data?.products);
+      const response = await getCall("/get-products");
+
+      if (response?.status) {
+        setTotal(response?.data?.totalProducts || 0);
+        setProducts(response?.data?.products || []);
+      } else {
+        toast.error(response?.msg || "Failed to fetch products");
       }
     } catch (error) {
-      console.log("error", error);
+      console.error("Get Product Error:", error);
+      toast.error("Failed to fetch products");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (productId: any) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
+  const handleIsActiveProduct = async (id: string, value: Boolean) => {
+    try {
+      const result = await patchCall(`product-edit/${id}`, {
+        isActive: value,
+      });
+      if (result.status) {
+        toast.success(result.msg);
+      } else {
+        toast.error(result.msg);
+      }
+    } catch (error) {
+      console.error("product activation Error ", error);
+    }
+  };
+
+  const handleDelete = async (productId: string) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) {
       return;
+    }
 
     try {
       setDeleteLoading(true);
-      const response = await deleteCall(`/products/${productId}`);
-      if (response?.data?.status === 200) {
-        // Refresh the product list after deletion
+      const response = await deleteCall(`/product-delete/${productId}`);
+
+      if (response?.status === 200) {
+        toast.success(response.msg || "Product deleted successfully");
         getProducts();
+      } else {
+        toast.error(response?.msg || "Failed to delete product");
       }
     } catch (error) {
-      console.log("error", error);
+      console.error("Delete Error:", error);
+      toast.error("Failed to delete product");
     } finally {
       setDeleteLoading(false);
     }
@@ -63,11 +211,11 @@ const AdminProductsPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Product Management</h1>
+    <div className=" w-full h-[calc(100vh-15vh)] overflow-y-auto mx-auto px-4 py-8">
+      <div className="flex justify-between text-gray-800 dark:text-white items-center mb-8">
+        <h1 className="text-2xl font-bold ">Product Management</h1>
         <div className="flex items-center space-x-4">
-          <span className="text-gray-600">
+          <span className="">
             Showing {products.length} of {total} products
           </span>
           <Link href="/admin/products/add" passHref>
@@ -79,140 +227,20 @@ const AdminProductsPage = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Product
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Price
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Stock
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {products.map((product: any) => (
-                <tr key={product._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          width={40}
-                          height={40}
-                          className="rounded-md object-cover"
-                        />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {product.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {product.brand}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      ${product.discountedPrice}
-                    </div>
-                    {product.discount > 0 && (
-                      <div className="text-xs text-gray-500 line-through">
-                        ${product.price}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{product.stock}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {product.stock > 0 ? (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        Out of Stock
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <Link
-                        href={`/dashboard/product-list/${product._id}`}
-                        passHref
-                      >
-                        <button className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50">
-                          <FiEye className="h-5 w-5" />
-                        </button>
-                      </Link>
-                      <Link
-                        href={`/admin/products/edit/${product._id}`}
-                        passHref
-                      >
-                        <button className="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50">
-                          <FiEdit className="h-5 w-5" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        disabled={deleteLoading}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                      >
-                        <FiTrash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination would go here */}
-        {products.length < total && (
-          <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
-            <div className="flex-1 flex justify-between">
-              <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                Previous
-              </button>
-              <button className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                Next
-              </button>
-            </div>
-          </div>
-        )}
+      <div className="bg-white rounded-lg shadow w-full overflow-x-auto ">
+        <CustomTable<Product>
+          data={products}
+          columns={columns}
+          keyField="id"
+          rowClassName={rowClass}
+          isLoading={loading}
+          className="dark" // or omit for light mode
+          emptyMessage="No products found"
+          onRowClick={(product) => console.log("Selected product:", product)}
+        />
       </div>
     </div>
   );
 };
 
-export default AdminProductsPage;
+export default ProductList;

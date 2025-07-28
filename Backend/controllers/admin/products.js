@@ -54,7 +54,7 @@ const productEditA = async (req, res) => {
       .status(200)
       .send({ status: true, msg: "Product is activated !", data: product });
   } catch (error) {
-    console.error("Product isActive by Admin Error:", error.message);
+    console.error("Product is Active by Admin Error:", error.message);
     return res.status(500).send({
       status: false,
       msg: "Server error",
